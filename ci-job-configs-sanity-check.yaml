@@ -31,7 +31,15 @@
                 - patchset-created-event
             projects:
                 - project-compare-type: 'PLAIN'
-                  project-pattern: 'ci/job/configs'
+                  project-pattern: 'ci/tf-ci-scripts'
+                  branches:
+                    - branch-pattern: 'master'
+                - project-compare-type: 'PLAIN'
+                  project-pattern: 'ci/tf-m-job-configs'
+                  branches:
+                    - branch-pattern: 'master'
+                - project-compare-type: 'PLAIN'
+                  project-pattern: 'ci/tf-a-job-configs'
                   branches:
                     - branch-pattern: 'master'
             silent-start: true
@@ -59,7 +67,7 @@
 
             # FIXME run-jjb.py was meant to be used for deployment only
             # use JJB 'test' command instead of 'update' command
-            sed -i "s|update|test|" run-jjb.py
+            sed -i "s|update|test|" ci/run-jjb.py
 
             export GIT_PREVIOUS_COMMIT=$(git rev-parse HEAD~1)
             export GIT_COMMIT=${GERRIT_PATCHSET_REVISION}
