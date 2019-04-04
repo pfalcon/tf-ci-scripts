@@ -1,0 +1,59 @@
+- job:
+    name: hello-world
+    project-type: freestyle
+    defaults: global
+    properties:
+        - authorization:
+            anonymous:
+                - job-read
+                - job-extended-read
+        - build-discarder:
+            days-to-keep: 30
+            num-to-keep: 30
+    disabled: false
+    node: amd64-bionic
+    display-name: 'CI job to test jenkins slave'
+    scm:
+        - git:
+            url: https://review.trustedfirmware.org/${GERRIT_PROJECT}
+            refspec: ${GERRIT_REFSPEC}
+            branches:
+                - ${GERRIT_BRANCH}
+            skip-tag: true
+            clean:
+                before: true
+            choosing-strategy: gerrit
+            basedir: configs
+    triggers:
+        - gerrit:
+            server-name: 'review.trustedfirmware.org'
+            trigger-on:
+                - patchset-created-event
+            projects:
+                - project-compare-type: 'PLAIN'
+                  project-pattern: 'ci/tf-ci-scripts'
+                  branches:
+                    - branch-pattern: 'master'
+            silent-start: true
+    wrappers:
+        - timestamps
+    builders:
+        - shell: |
+            #!/bin/bash -e
+            echo "#${BUILD_NUMBER}-${GERRIT_PATCHSET_REVISION:0:8}" > ${WORKSPACE}/version.txt
+        - build-name-setter:
+            name: 'version.txt'
+            file: true
+        - shell: |
+            #!/bin/bash
+
+            set -e
+
+            echo ""
+            echo "########################################################################"
+            echo "    Gerrit Environment"
+            env |grep '^GERRIT'
+            echo "########################################################################"
+    publishers:
+        - email:
+            recipients: 'ben.copeland@linaro.org'
