@@ -13,7 +13,7 @@
             days-to-keep: 90
             num-to-keep: 200
     disabled: false
-    node: master
+    node: build-amd64
     concurrent: false
     display-name: 'CI Dockerfiles build/publish deployment'
     scm:
