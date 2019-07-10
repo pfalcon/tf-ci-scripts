@@ -11,6 +11,7 @@ cleanup_exit()
 }
 
 mkdir -p ${HOME}/.docker
+wget https://ci.trustedfirmware.org/userContent/config.json
 sed -e "s|\${DOCKER_AUTH}|${DOCKER_AUTH}|" < ${WORKSPACE}/config.json > ${HOME}/.docker/config.json
 chmod 0600 ${HOME}/.docker/config.json
 
