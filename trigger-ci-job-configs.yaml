@@ -86,4 +86,4 @@
             python ci/run-jjb.py
     publishers:
         - email:
-            recipients: 'fathi.boudra@linaro.org ben.copeland@linaro.org'
+            recipients: 'ben.copeland@linaro.org riku.voipio@linaro.org kelley.spoon@linaro.org fathi.boudra@linaro.org'

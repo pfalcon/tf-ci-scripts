@@ -68,4 +68,4 @@
             !include-raw: ci-dockerfiles-deployment/builders.sh
     publishers:
         - email:
-            recipients: ben.copeland@linaro.org
+            recipients: 'ben.copeland@linaro.org riku.voipio@linaro.org kelley.spoon@linaro.org fathi.boudra@linaro.org'
