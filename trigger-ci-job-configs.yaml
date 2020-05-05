@@ -44,11 +44,10 @@
                   project-pattern: 'ci/tf-a-job-configs'
                   branches:
                     - branch-pattern: 'master'
-                - project-compare-type: 'PLAIN'
+                - project-compare-type: 'plain'
                   project-pattern: 'ci/hafnium-job-configs'
                   branches:
                     - branch-pattern: 'master'
-
             silent-start: true
     wrappers:
         - timestamps
