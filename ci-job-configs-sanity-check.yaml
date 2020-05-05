@@ -42,7 +42,7 @@
                   project-pattern: 'ci/tf-a-job-configs'
                   branches:
                     - branch-pattern: 'master'
-                - project-compare-type: 'plain'
+                - project-compare-type: 'PLAIN'
                   project-pattern: 'ci/hafnium-job-configs'
                   branches:
                     - branch-pattern: 'master'
