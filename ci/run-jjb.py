@@ -66,7 +66,7 @@ if main_action == 'test':
     jjb_delete_args.insert(0, 'echo')
 
 try:
-    git_args = ['git', 'diff', '--name-only',
+    git_args = ['git', 'diff', '--raw',
                 os.environ.get('GIT_PREVIOUS_COMMIT'),
                 os.environ.get('GIT_COMMIT')]
     proc = subprocess.Popen(git_args,
@@ -83,16 +83,32 @@ if proc.returncode != 0:
     raise ValueError("command has failed with code '%s'" % proc.returncode)
 
 filelist = []
+deletelist = []
 files = []
-for filename in data.splitlines():
+for line in data.splitlines():
+    # Format of the git-diff; we only need OPERATION and FILE1
+    #
+    # :<OLD MODE> <NEW MODE> <OLD REF> <NEW REF> <OPERATION> <FILE1> <FILE2>
+    elems = line.split()
+    operation = elems[4][0]
+    filename = elems[5]
+
     if filename.endswith('.yaml') and '/' not in filename:
+        # No point trying to test deleted jobs because they don't exist any
+        # more.
+        if operation == 'D':
+            deletelist.append(filename[:-5])
+            continue
+        # operation R100 is 100% rename, which means sixth element is the renamed file
+        if operation == 'R':
+            filename = elems[6]
         filelist.append(filename)
     else:
         files = findparentfiles(filename)
         for tempname in files:
             filelist.append(tempname)
 
-# Remove dplicate entries in the list
+# Remove duplicate entries in the list
 filelist = list(set(filelist))
 
 for conf_filename in filelist:
@@ -143,6 +159,10 @@ for conf_filename in filelist:
                 raise ValueError("command has failed with code '%s'" % proc.returncode)
 
             for filename in data.splitlines():
+                conf_name=os.path.splitext(conf_filename)[0]
+                conf_name=conf_name[:len(filename)]
+                if not filename.startswith(conf_name):
+                    raise ValueError("Job name %s does not match the file it is in: %s" % (filename, conf_name))
                 try:
                     xmlroot = xml.etree.ElementTree.parse('out/' + filename).getroot()
                     disabled = next(xmlroot.iterfind('disabled')).text
@@ -154,23 +174,31 @@ for conf_filename in filelist:
                 except:
                     continue
 
-                delete_args = list(jjb_delete_args)
-                delete_args.extend([filename])
-                proc = subprocess.Popen(delete_args,
-                                        stdin=subprocess.PIPE,
-                                        stdout=subprocess.PIPE,
-                                        universal_newlines=False,
-                                        preexec_fn=lambda:
-                                        signal.signal(signal.SIGPIPE, signal.SIG_DFL))
-                data = proc.communicate()[0]
-                if proc.returncode != 0:
-                    raise ValueError("command has failed with code '%s'" % proc.returncode)
-                print data
+                deletelist.append(conf_name)
+
         except (OSError, ValueError) as e:
             raise ValueError("%s" % e)
 
         shutil.rmtree('out/', ignore_errors=True)
         os.remove('template.yaml')
+
+
+for deletejob in deletelist:
+    delete_args = list(jjb_delete_args)
+    delete_args.extend([deletejob])
+    try:
+        proc = subprocess.Popen(delete_args,
+                                stdin=subprocess.PIPE,
+                                stdout=subprocess.PIPE,
+                                universal_newlines=False,
+                                preexec_fn=lambda:
+                                signal.signal(signal.SIGPIPE, signal.SIG_DFL))
+        data = proc.communicate()[0]
+        if proc.returncode != 0:
+            raise ValueError("command has failed with code '%s'" % proc.returncode)
+        print data
+    except (OSError, ValueError) as e:
+        raise ValueError("%s" % e)
 
 if os.path.exists('jenkins_jobs.ini'):
     os.remove('jenkins_jobs.ini')
