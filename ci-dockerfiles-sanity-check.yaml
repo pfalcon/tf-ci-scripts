@@ -54,10 +54,6 @@
         sequential: false
     wrappers:
         - timestamps
-        - copy-to-slave:
-            includes:
-                - config.json
-            relative-to: 'somewhereElse'
     builders:
         - shell: |
             #!/bin/bash -e

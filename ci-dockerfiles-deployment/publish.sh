@@ -13,7 +13,15 @@ cleanup_exit()
 docker_log_in()
 {
     mkdir -p ${HOME}/.docker
-    sed -e "s|\${DOCKER_AUTH}|${DOCKER_AUTH}|" < ${WORKSPACE}/config.json > ${HOME}/.docker/config.json
+    cat > ${HOME}/.docker/config.json << EOF
+{
+        "auths": {
+                "https://index.docker.io/v1/": {
+                        "auth": "${DOCKER_AUTH}"
+                }
+        }
+}
+EOF
     chmod 0600 ${HOME}/.docker/config.json
 }
 

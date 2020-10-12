@@ -52,10 +52,6 @@
         sequential: false
     wrappers:
         - timestamps
-        - copy-to-slave:
-            includes:
-                - config.json
-            relative-to: 'somewhereElse'
         - credentials-binding:
             - text:
                 credential-id: DOCKER_AUTH
