@@ -2,33 +2,20 @@
 
 set -ex
 
-trap cleanup_exit INT TERM EXIT
-
-cleanup_exit()
-{
-    rm -rf ${HOME}/.docker
-    rm -f ${WORKSPACE}/{log,config.json,version.txt}
-}
-
-mkdir -p ${HOME}/.docker
-wget https://ci.trustedfirmware.org/userContent/config.json
-sed -e "s|\${DOCKER_AUTH}|${DOCKER_AUTH}|" < ${WORKSPACE}/config.json > ${HOME}/.docker/config.json
-chmod 0600 ${HOME}/.docker/config.json
-
 echo ""
 echo "########################################################################"
 echo "    Gerrit Environment"
 env |grep '^GERRIT'
 echo "########################################################################"
 
-rm -f ${WORKSPACE}/{log,config.json,version.txt}
+rm -f ${WORKSPACE}/log
 cd dockerfiles/
 
 git_previous_commit=$(git rev-parse HEAD~1)
 git_commit=$(git rev-parse HEAD)
 files=$(git diff --name-only ${git_previous_commit} ${git_commit})
 echo Changes in: ${files}
-changed_dirs=$(dirname ${files})
+changed_dirs=$(dirname ${files}|sort -u)
 
 update_images=""
 for dir in ${changed_dirs}; do
@@ -44,6 +31,9 @@ for dir in ${changed_dirs}; do
       # ${dir} is one of generic tcwg-base/* directories.  Add dependent
       # images to the list.
       update_images="${update_images} $(dirname $(find . -path "*-${dir_basename}*/build.sh" | sed -e "s#^\./##g"))"
+      ;;
+    ".")
+      continue
       ;;
     *)
       update_images="${update_images} $(dirname $(find ${dir} -name build.sh))"
@@ -80,21 +70,6 @@ for image in ${update_images}; do
       echo "Skipping: can't build for ${image_arch} on ${host_arch}"
       ;;
   esac
-  if [ -r .docker-tag ]; then
-    docker_tag=$(cat .docker-tag)
-    if [ x"${GERRIT_BRANCH}" != x"master" ]; then
-      new_tag=${docker_tag}-${GERRIT_BRANCH}
-      docker tag ${docker_tag} ${new_tag}
-      docker_tag=${new_tag}
-    fi
-    docker push ${docker_tag}
-  fi
   )||echo $image failed >> ${WORKSPACE}/log
 done
 
-if [ -e ${WORKSPACE}/log ]
-then
-    echo "some images failed:"
-    cat ${WORKSPACE}/log
-    exit 1
-fi
