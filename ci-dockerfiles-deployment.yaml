@@ -68,5 +68,7 @@
         - shell:
             !include-raw: ci-dockerfiles-deployment/publish.sh
     publishers:
+        - trigger:
+            project: 'ci-dockerslaves-cleanup'
         - email:
             recipients: linaro-infrastructure-errors@lists.linaro.org
