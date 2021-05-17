@@ -1,0 +1,70 @@
+- job:
+    name: ci-users-guide
+    project-type: freestyle
+    defaults: global
+    properties:
+        - authorization:
+            anonymous:
+                - job-read
+                - job-extended-read
+        - build-discarder:
+            days-to-keep: 90
+            num-to-keep: 200
+    disabled: false
+    node: master
+    concurrent: false
+    display-name: 'CI Users Guide publish deployment'
+    scm:
+        - git:
+            url: https://review.trustedfirmware.org/${GERRIT_PROJECT}
+            refspec: ${GERRIT_REFSPEC}
+            branches:
+                - ${GERRIT_BRANCH}
+            skip-tag: true
+            clean:
+                before: true
+            choosing-strategy: gerrit
+            basedir: tf-ci-users-guide
+    parameters:
+        - string:
+            name: GERRIT_PROJECT
+            default: 'ci/tf-ci-users-guide'
+        - string:
+            name: GERRIT_BRANCH
+            default: 'refs/heads/master'
+        - string:
+            name: GERRIT_REFSPEC
+            default: '+refs/heads/master:refs/remotes/origin/master'
+        - string:
+            name: READTHEDOCS_PROJECT
+            default: 'tf-ci-users-guide'
+        - string:
+            name: READTHEDOCS_API
+            default: 'https://readthedocs.org/api/v3/projects/${READTHEDOCS_PROJECT}/versions/latest/builds/'
+    triggers:
+        - gerrit:
+            server-name: 'review.trustedfirmware.org'
+            trigger-on:
+                - change-merged-event
+            projects:
+                - project-compare-type: 'PLAIN'
+                  project-pattern: 'ci/tf-ci-users-guide'
+                  branches:
+                    - branch-compare-type: 'PLAIN'
+                      branch-pattern: 'master'
+            silent-start: true
+    execution-strategy:
+        sequential: false
+    wrappers:
+        - timestamps
+        - credentials-binding:
+            - text:
+                credential-id: READTHEDOCS_TOKEN
+                variable: READTHEDOCS_TOKEN
+    builders:
+        - shell: |
+            #!/bin/bash -xe
+            curl -X POST -H "Authorization: Token ${READTHEDOCS_TOKEN}" ${READTHEDOCS_API}
+    publishers:
+        - email:
+            recipients: linaro-infrastructure-errors@lists.linaro.org
