@@ -1,0 +1,54 @@
+- scm:
+    name: tf-ci-scripts
+    scm:
+        - git:
+            url: https://git.trustedfirmware.org/ci/tf-ci-scripts.git
+            refspec: +refs/heads/master:refs/remotes/origin/master
+            name: origin
+            branches:
+                - refs/heads/master
+            basedir: tf-ci-scripts
+            skip-tag: true
+            shallow-clone: true
+            wipe-workspace: false
+- job:
+    name: fvp-docker-images
+    project-type: freestyle
+    defaults: global
+    properties:
+        - authorization:
+            anonymous:
+                - job-discover
+                - job-read
+                - job-extended-read
+                - job-workspace
+            lsandov1:
+                - job-read
+                - job-extended-read
+                - job-build
+                - job-cancel
+            xinyu-tfm:
+                - job-read
+                - job-extended-read
+                - job-build
+                - job-cancel
+            trusted-firmware-ci*trusted-firmware-A-OpenCI-Users:
+                - job-read
+                - job-extended-read
+                - job-build
+                - job-cancel
+        - build-discarder:
+            num-to-keep: 30
+    disabled: false
+    node: build-amd64-private
+    display-name: 'FVP Docker files'
+    wrappers:
+        - timestamps
+    scm:
+        - tf-ci-scripts
+    builders:
+        - shell: |
+            #!/bin/bash
+            bash -x tf-ci-scripts/fvp-docker-images/builders.sh
+    triggers:
+        - timed: 'H 17 * * *'
