@@ -41,7 +41,7 @@
             num-to-keep: 30
     disabled: false
     node: build-amd64-private
-    display-name: 'FVP Docker files'
+    display-name: 'FVP Docker Images'
     wrappers:
         - timestamps
     scm:
