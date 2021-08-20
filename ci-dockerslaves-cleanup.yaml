@@ -31,6 +31,7 @@
             values:
                 - x86_64-TF-01
                 - x86_64-TF-02
+                - x86-64-TF-03
     execution-strategy:
         sequential: false
     wrappers:
