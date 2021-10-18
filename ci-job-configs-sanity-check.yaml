@@ -4,9 +4,10 @@
     defaults: global
     properties:
         - authorization:
-            anonymous:
+            authenticated:
                 - job-read
                 - job-extended-read
+                - job-discover
         - build-discarder:
             days-to-keep: 30
             num-to-keep: 30
