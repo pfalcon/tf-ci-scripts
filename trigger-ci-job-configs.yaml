@@ -6,7 +6,8 @@
         - authorization:
             anonymous:
                 - job-discover
-            linaro:
+            authenticated:
+                - job-discover
                 - job-read
                 - job-extended-read
         - build-discarder:
