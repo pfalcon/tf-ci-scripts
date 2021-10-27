@@ -122,6 +122,7 @@ for conf_filename in filelist:
         with open('template.yaml', 'w') as f:
             f.write(buffer)
         try:
+            print("jjb command '%s'" % jjb_args)
             proc = subprocess.Popen(jjb_args,
                                     stdin=subprocess.PIPE,
                                     stdout=subprocess.PIPE,
