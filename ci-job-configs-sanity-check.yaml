@@ -47,6 +47,10 @@
                   project-pattern: 'ci/hafnium-job-configs'
                   branches:
                     - branch-pattern: 'master'
+                - project-compare-type: 'PLAIN'
+                  project-pattern: 'ci/mbed-tls-job-configs'
+                  branches:
+                    - branch-pattern: 'master'
             silent-start: true
     wrappers:
         - timestamps
