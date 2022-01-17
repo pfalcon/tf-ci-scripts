@@ -64,7 +64,7 @@ for image in ${update_images}; do
       ;;
     "no:amd64:amd64"|"no:amd64:i386"|"no:arm64:arm64"|"no:armhf:armhf")
       echo "=== Start build: ${image} ==="
-      ./build.sh || echo "=== FAIL: ${image} ===" >> ${WORKSPACE}/log
+      bash -x ./build.sh || echo "=== FAIL: ${image} ===" >> ${WORKSPACE}/log
       ;;
     *)
       echo "Skipping: can't build for ${image_arch} on ${host_arch}"
