@@ -22,6 +22,12 @@
     node: build-amd64
     concurrent: false
     display-name: 'CI Dockerfiles sanity check'
+    parameters:
+        - string:
+            name: DOCKER_SUFFIX
+            default: '-check'
+            description: |
+              Suffix for docker image name, should be non-empty to differentiate testing images from production images.
     scm:
         - git:
             url: https://review.trustedfirmware.org/${GERRIT_PROJECT}
