@@ -57,7 +57,7 @@
             git fetch https://review.trustedfirmware.org/${GERRIT_PROJECT} ${GERRIT_REFSPEC}
             git checkout -q FETCH_HEAD
 
-            python yadp_builder_v2.py
+            python3 yadp_builder.py
     publishers:
         - email:
             recipients: 'linaro-infrastructure-errors@lists.linaro.org'
