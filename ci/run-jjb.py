@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 import os
 import shutil
@@ -14,13 +14,8 @@ def findparentfiles(fname):
     filelist = []
     newlist = []
     args = ['grep', '-rl', '--exclude-dir=.git', fname]
-    proc = subprocess.Popen(args,
-                            stdin=subprocess.PIPE,
-                            stdout=subprocess.PIPE,
-                            universal_newlines=False,
-                            preexec_fn=lambda:
-                            signal.signal(signal.SIGPIPE, signal.SIG_DFL))
-    data = proc.communicate()[0]
+    proc = subprocess.run(args, capture_output=True)
+    data = proc.stdout.decode()
     if proc.returncode != 0:
         return filelist
     for filename in data.splitlines():
@@ -69,16 +64,11 @@ try:
     git_args = ['git', 'diff', '--raw',
                 os.environ.get('GIT_PREVIOUS_COMMIT'),
                 os.environ.get('GIT_COMMIT')]
-    proc = subprocess.Popen(git_args,
-                            stdin=subprocess.PIPE,
-                            stdout=subprocess.PIPE,
-                            universal_newlines=False,
-                            preexec_fn=lambda:
-                            signal.signal(signal.SIGPIPE, signal.SIG_DFL))
+    proc = subprocess.run(git_args, capture_output=True)
 except (OSError, ValueError) as e:
     raise ValueError("%s" % e)
 
-data = proc.communicate()[0]
+data = proc.stdout.decode()
 if proc.returncode != 0:
     raise ValueError("command has failed with code '%s'" % proc.returncode)
 
@@ -102,6 +92,8 @@ for line in data.splitlines():
         # operation R100 is 100% rename, which means sixth element is the renamed file
         if operation == 'R':
             filename = elems[6]
+            # delete old job name
+            deletelist.append(elems[5][:-5])
         filelist.append(filename)
     else:
         files = findparentfiles(filename)
@@ -117,49 +109,39 @@ for conf_filename in filelist:
         template = string.Template(buffer)
         buffer = template.safe_substitute(
             AUTH_TOKEN=os.environ.get('AUTH_TOKEN'),
+            LT_QCOM_KEY=os.environ.get('LT_QCOM_KEY'),
             LAVA_USER=os.environ.get('LAVA_USER'),
             LAVA_TOKEN=os.environ.get('LAVA_TOKEN'))
         with open('template.yaml', 'w') as f:
             f.write(buffer)
         try:
-            print("jjb command '%s'" % jjb_args)
-            proc = subprocess.Popen(jjb_args,
-                                    stdin=subprocess.PIPE,
-                                    stdout=subprocess.PIPE,
-                                    universal_newlines=False,
-                                    preexec_fn=lambda:
-                                    signal.signal(signal.SIGPIPE, signal.SIG_DFL))
+            proc = subprocess.run(jjb_args, capture_output=True)
         except (OSError, ValueError) as e:
             raise ValueError("%s" % e)
 
-        data = proc.communicate()[0]
+        data = proc.stdout.decode()
         if proc.returncode != 0:
             raise ValueError("command has failed with code '%s'" % proc.returncode)
 
         try:
             shutil.rmtree('out/', ignore_errors=True)
 
-            proc = subprocess.Popen(jjb_test_args,
-                                    stdin=subprocess.PIPE,
-                                    stdout=subprocess.PIPE,
-                                    universal_newlines=False,
-                                    preexec_fn=lambda:
-                                    signal.signal(signal.SIGPIPE, signal.SIG_DFL))
-            data = proc.communicate()[0]
+            proc = subprocess.run(jjb_test_args, capture_output=True)
+            data = proc.stdout.decode()
             if proc.returncode != 0:
                 raise ValueError("command has failed with code '%s'" % proc.returncode)
 
-            proc = subprocess.Popen(['ls', 'out/'],
-                                    stdin=subprocess.PIPE,
-                                    stdout=subprocess.PIPE,
-                                    universal_newlines=False,
-                                    preexec_fn=lambda:
-                                    signal.signal(signal.SIGPIPE, signal.SIG_DFL))
-            data = proc.communicate()[0]
+            proc = subprocess.run(['ls', 'out/'], capture_output=True)
+            data = proc.stdout.decode()
             if proc.returncode != 0:
                 raise ValueError("command has failed with code '%s'" % proc.returncode)
 
             for filename in data.splitlines():
+                # old job conf might have been removed because the job is now generated through the template
+                # do not delete the job in this case
+                if filename in deletelist:
+                    deletelist.remove(filename)
+
                 conf_name=os.path.splitext(conf_filename)[0]
                 conf_name=conf_name[:len(filename)]
                 if not filename.startswith(conf_name):
@@ -175,7 +157,7 @@ for conf_filename in filelist:
                 except:
                     continue
 
-                deletelist.append(conf_name)
+                deletelist.append(filename)
 
         except (OSError, ValueError) as e:
             raise ValueError("%s" % e)
@@ -188,18 +170,14 @@ for deletejob in deletelist:
     delete_args = list(jjb_delete_args)
     delete_args.extend([deletejob])
     try:
-        proc = subprocess.Popen(delete_args,
-                                stdin=subprocess.PIPE,
-                                stdout=subprocess.PIPE,
-                                universal_newlines=False,
-                                preexec_fn=lambda:
-                                signal.signal(signal.SIGPIPE, signal.SIG_DFL))
-        data = proc.communicate()[0]
+        proc = subprocess.run(delete_args, capture_output=True)
+        data = proc.stdout.decode()
         if proc.returncode != 0:
             raise ValueError("command has failed with code '%s'" % proc.returncode)
-        print data
+        print(data)
     except (OSError, ValueError) as e:
         raise ValueError("%s" % e)
 
 if os.path.exists('jenkins_jobs.ini'):
     os.remove('jenkins_jobs.ini')
+

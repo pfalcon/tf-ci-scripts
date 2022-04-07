@@ -82,7 +82,7 @@
             export GIT_PREVIOUS_COMMIT=$(git rev-parse HEAD~1)
             export GIT_COMMIT=${GERRIT_PATCHSET_REVISION}
             jenkins-jobs --version
-            python ci/run-jjb.py
+            python3 ci/run-jjb.py
     publishers:
         - email:
             recipients: 'ben.copeland@linaro.org riku.voipio@linaro.org kelley.spoon@linaro.org fathi.boudra@linaro.org'
