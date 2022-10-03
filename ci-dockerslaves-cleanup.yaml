@@ -24,7 +24,7 @@
     concurrent: false
     display-name: 'CI docker cleanup and image update'
     triggers:
-        - timed : '@daily'
+        - timed : '@hourly'
     axes:
         - axis:
             type: slave
