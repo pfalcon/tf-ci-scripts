@@ -40,6 +40,8 @@
     builders:
         - shell:
             !include-raw: ci-dockerfiles-deployment/cleanup-update.sh
+        - shell:
+            !include-raw: misra-docker-images/update.sh
     publishers:
         - email:
             recipients: linaro-infrastructure-errors@lists.linaro.org
