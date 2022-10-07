@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 docker --version
 
 if ! type aws
