@@ -37,9 +37,20 @@
         sequential: false
     wrappers:
         - timestamps
+        - credentials-binding:
+            - text:
+                credential-id: MISRA_AWS_ACCESS_KEY_ID
+                variable: AWS_ACCESS_KEY_ID
+        - credentials-binding:
+            - text:
+                credential-id: MISRA_AWS_SECRET_ACCESS_KEY
+                variable: AWS_SECRET_ACCESS_KEY
     builders:
         - shell:
             !include-raw: ci-dockerfiles-deployment/cleanup-update.sh
+        - shell:
+            !include-raw: misra-docker-images/update.sh
+
     publishers:
         - email:
             recipients: linaro-infrastructure-errors@lists.linaro.org
