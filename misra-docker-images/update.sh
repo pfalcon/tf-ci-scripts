@@ -18,7 +18,7 @@ export ECR=987685672616.dkr.ecr.us-east-1.amazonaws.com
 export REPO=misra
 aws ecr get-login-password --region us-east-1|docker login --username AWS --password-stdin $ECR
 
-for image in $(aws ecr list-images --repository-name $REPO | \
+for image in $(aws ecr list-images --region us-east-1 --repository-name $REPO | \
     grep imageTag | \
     awk '{print $2}' | \
     sed 's/"//g'); do
