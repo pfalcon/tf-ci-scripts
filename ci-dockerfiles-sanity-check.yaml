@@ -1,0 +1,84 @@
+- job:
+    name: ci-dockerfiles-sanity-check
+    project-type: freestyle
+    defaults: global
+    properties:
+        - authorization:
+            anonymous:
+                - job-discover
+            authenticated:
+                - job-read
+                - job-extended-read
+                - job-discover
+        - build-discarder:
+            days-to-keep: 90
+            num-to-keep: 200
+        - build-blocker:
+            use-build-blocker: true
+            blocking-jobs:
+              - "ci-docker*"
+            block-level: 'NODE'
+    disabled: false
+    node: build-amd64
+    concurrent: false
+    display-name: 'CI Dockerfiles sanity check'
+    parameters:
+        - string:
+            name: GERRIT_PROJECT
+            default: 'ci/dockerfiles'
+            description: |
+              Git project to build (also set by Gerrit trigger)
+        - string:
+            name: GERRIT_BRANCH
+            default: 'master'
+            description: |
+              Git branch to build (also set by Gerrit trigger)
+        - string:
+            name: GERRIT_REFSPEC
+            default: ''
+        - string:
+            name: DOCKER_SUFFIX
+            default: '-check'
+            description: |
+              Suffix for docker image name, should be non-empty to differentiate testing images from production images.
+    scm:
+        - git:
+            url: https://review.trustedfirmware.org/${GERRIT_PROJECT}
+            refspec: ${GERRIT_REFSPEC}
+            branches:
+                - ${GERRIT_BRANCH}
+            skip-tag: true
+            clean:
+                before: true
+            choosing-strategy: gerrit
+            basedir: dockerfiles
+    triggers:
+        - gerrit:
+            server-name: 'review.trustedfirmware.org'
+            trigger-on:
+                - patchset-created-event
+            projects:
+                - project-compare-type: 'PLAIN'
+                  project-pattern: 'ci/dockerfiles'
+                  branches:
+                    - branch-compare-type: 'PLAIN'
+                      branch-pattern: 'master'
+            silent-start: true
+    execution-strategy:
+        sequential: false
+    wrappers:
+        - timestamps
+    builders:
+        - shell: |
+            #!/bin/bash -e
+            echo "#${BUILD_NUMBER}-${GERRIT_PATCHSET_REVISION:0:8}" > ${WORKSPACE}/version.txt
+        - build-name-setter:
+            name: 'version.txt'
+            file: true
+        - shell:
+            !include-raw: ci-dockerfiles-deployment/builders.sh
+        - shell:
+            !include-raw: ci-dockerfiles-deployment/report.sh
+    publishers:
+        - email:
+            recipients: linaro-infrastructure-errors@lists.linaro.org
