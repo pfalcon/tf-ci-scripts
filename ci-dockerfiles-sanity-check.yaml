@@ -24,6 +24,19 @@
     display-name: 'CI Dockerfiles sanity check'
     parameters:
         - string:
+            name: GERRIT_PROJECT
+            default: 'ci/dockerfiles'
+            description: |
+              Git project to build (also set by Gerrit trigger)
+        - string:
+            name: GERRIT_BRANCH
+            default: 'master'
+            description: |
+              Git branch to build (also set by Gerrit trigger)
+        - string:
+            name: GERRIT_REFSPEC
+            default: ''
+        - string:
             name: DOCKER_SUFFIX
             default: '-check'
             description: |
