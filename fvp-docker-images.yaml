@@ -52,3 +52,6 @@
             bash -x tf-ci-scripts/fvp-docker-images/builders.sh
     triggers:
         - timed: 'H 17 * * *'
+    publishers:
+        - email:
+            recipients: 'linaro-infrastructure-errors@lists.linaro.org paul.sokolovsky@linaro.org'
