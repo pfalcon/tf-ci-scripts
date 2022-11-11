@@ -72,4 +72,4 @@
         - trigger:
             project: 'ci-dockerslaves-cleanup'
         - email:
-            recipients: linaro-infrastructure-errors@lists.linaro.org
+            recipients: 'linaro-infrastructure-errors@lists.linaro.org paul.sokolovsky@linaro.org'
