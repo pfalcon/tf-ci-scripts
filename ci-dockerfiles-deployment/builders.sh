@@ -8,8 +8,26 @@ echo "    Gerrit Environment"
 env |grep '^GERRIT'
 echo "########################################################################"
 
+# For dpkg-architecture call below
+sudo apt-get -y -qq install --no-install-recommends dpkg-dev
+
+if ! type aws
+then
+    sudo apt-get -y -qq update
+    sudo apt-get -y -qq install --no-install-recommends unzip
+    curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+    unzip awscliv2.zip
+    sudo ./aws/install
+fi
+
 rm -f ${WORKSPACE}/log
 cd dockerfiles/
+
+aws configure list
+aws s3 cp --recursive s3://trustedfirmware-private/armclang/ .
+find .
+
+df -h
 
 git_previous_commit=$(git rev-parse HEAD~1)
 git_commit=$(git rev-parse HEAD)

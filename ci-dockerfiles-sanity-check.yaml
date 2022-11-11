@@ -19,7 +19,7 @@
               - "ci-docker*"
             block-level: 'NODE'
     disabled: false
-    node: build-amd64
+    node: build-amd64-private
     concurrent: false
     display-name: 'CI Dockerfiles sanity check'
     parameters:
