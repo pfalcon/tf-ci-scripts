@@ -20,6 +20,20 @@
     node: build-amd64
     concurrent: false
     display-name: 'CI Dockerfiles build/publish deployment'
+    parameters:
+        - string:
+            name: GERRIT_PROJECT
+            default: 'ci/dockerfiles'
+            description: |
+              Git project to build (also set by Gerrit trigger)
+        - string:
+            name: GERRIT_BRANCH
+            default: 'master'
+            description: |
+              Git branch to build (also set by Gerrit trigger)
+        - string:
+            name: GERRIT_REFSPEC
+            default: ''
     scm:
         - git:
             url: https://review.trustedfirmware.org/${GERRIT_PROJECT}
