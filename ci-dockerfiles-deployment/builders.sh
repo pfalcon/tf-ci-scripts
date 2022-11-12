@@ -9,7 +9,10 @@ env |grep '^GERRIT'
 echo "########################################################################"
 
 # For dpkg-architecture call below
-sudo apt-get -y -qq install --no-install-recommends dpkg-dev
+if ! type dpkg-architecture
+then
+    sudo apt-get -y -qq install --no-install-recommends dpkg-dev
+done
 
 if ! type aws
 then
