@@ -12,7 +12,7 @@ echo "########################################################################"
 if ! type dpkg-architecture
 then
     sudo apt-get -y -qq install --no-install-recommends dpkg-dev
-done
+fi
 
 if ! type aws
 then
