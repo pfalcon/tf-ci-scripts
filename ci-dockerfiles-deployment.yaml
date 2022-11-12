@@ -66,9 +66,8 @@
                 credential-id: DOCKER_AUTH
                 variable: DOCKER_AUTH
     builders:
-        - shell: |
-            #!/bin/bash -e
-            echo "#${BUILD_NUMBER}-${GERRIT_PATCHSET_REVISION:0:8}" > ${WORKSPACE}/version.txt
+        - shell:
+            !include-raw: ci-dockerfiles-deployment/build-version.sh
         - build-name-setter:
             name: 'version.txt'
             file: true
