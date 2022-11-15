@@ -8,6 +8,18 @@ echo "    Gerrit Environment"
 env |grep '^GERRIT'
 echo "########################################################################"
 
+ON_EC2="0"
+if [ -f /sys/hypervisor/uuid ] && grep -q ^ec2 /sys/hypervisor/uuid; then
+    ON_EC2="1"
+fi
+
+if [ "${ON_EC2}" == "1" ]; then
+    # On EC2 instances, stop and remove unattended-upgrades service which
+    # may interfere with any apt operations below.
+    sudo systemctl stop unattended-upgrades
+    sudo apt-get remove -y -qq unattended-upgrades
+fi
+
 # For dpkg-architecture call below
 if ! type dpkg-architecture
 then
