@@ -2,6 +2,8 @@
 
 set -ex
 
+docker --version
+
 echo ""
 echo "########################################################################"
 echo "    Gerrit Environment"
