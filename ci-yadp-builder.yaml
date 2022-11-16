@@ -60,4 +60,4 @@
             python3 yadp_builder.py
     publishers:
         - email:
-            recipients: 'linaro-infrastructure-errors@lists.linaro.org'
+            recipients: 'linaro-infrastructure-errors@lists.linaro.org paul.sokolovsky@linaro.org'
