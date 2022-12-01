@@ -25,7 +25,7 @@ for tarball in F*.tgz
 do
     tag=$(./create-model-tag.sh $tarball)
     mkdir -p $tag
-    cp setup-sshd $tag/
+    cp setup-sshd stdout-flush-wrapper.sh $tag/
     mv $tarball $tag/
     ./create-model-dockerfile.sh $tarball $tag
     (
