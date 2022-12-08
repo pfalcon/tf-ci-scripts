@@ -25,6 +25,7 @@ fi
 # For dpkg-architecture call below
 if ! type dpkg-architecture
 then
+    sudo apt-get -y -qq update
     sudo apt-get -y -qq install --no-install-recommends dpkg-dev
 fi
 
