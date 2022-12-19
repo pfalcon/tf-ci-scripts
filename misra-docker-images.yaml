@@ -1,0 +1,22 @@
+- job:
+    name: misra-docker-images
+    project-type: freestyle
+    defaults: global
+    properties:
+        - authorization:
+            anonymous:
+                - job-read
+                - job-extended-read
+        - build-discarder:
+            days-to-keep: 90
+            num-to-keep: 200
+    disabled: false
+    node: build-amd64-private
+    concurrent: false
+    display-name: 'MISRA Docker images build'
+    builders:
+        - shell:
+            !include-raw: misra-docker-images/builders.sh
+    publishers:
+        - email:
+            recipients: 'linaro-infrastructure-errors@lists.linaro.org paul.sokolovsky@linaro.org'
