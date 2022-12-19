@@ -14,6 +14,31 @@
     node: build-amd64-private
     concurrent: false
     display-name: 'MISRA Docker images build'
+    parameters:
+        - string:
+            name: GERRIT_PROJECT
+            default: 'ci/misra-dockerfiles'
+            description: |
+              Git project to build (also set by Gerrit trigger)
+        - string:
+            name: GERRIT_BRANCH
+            default: 'master'
+            description: |
+              Git branch to build (also set by Gerrit trigger)
+        - string:
+            name: GERRIT_REFSPEC
+            default: ''
+    scm:
+        - git:
+            url: https://review.trustedfirmware.org/${GERRIT_PROJECT}
+            refspec: ${GERRIT_REFSPEC}
+            branches:
+                - ${GERRIT_BRANCH}
+            skip-tag: true
+            clean:
+                before: true
+            choosing-strategy: gerrit
+            basedir: misra-dockerfiles
     builders:
         - shell:
             !include-raw: misra-docker-images/builders.sh

@@ -11,8 +11,6 @@ then
     sudo ./aws/install
 fi
 
-rm -rf misra-dockerfiles
-git clone https://git.trustedfirmware.org/ci/misra-dockerfiles.git
 cd misra-dockerfiles
 
 aws configure list
