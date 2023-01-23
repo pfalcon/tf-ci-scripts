@@ -66,6 +66,8 @@
                 credential-id: DOCKER_AUTH
                 variable: DOCKER_AUTH
     builders:
+        - shell: |
+            df -h
         - shell:
             !include-raw: ci-dockerfiles-deployment/build-version.sh
         - build-name-setter:
@@ -80,3 +82,4 @@
             project: 'ci-dockerslaves-cleanup'
         - email:
             recipients: 'linaro-infrastructure-errors@lists.linaro.org paul.sokolovsky@linaro.org'
+        - workspace-cleanup
