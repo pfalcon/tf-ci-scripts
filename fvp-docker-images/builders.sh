@@ -14,6 +14,7 @@ fi
 rm -rf fvp-dockerfiles
 git clone https://git.trustedfirmware.org/ci/fvp-dockerfiles.git
 cd fvp-dockerfiles
+git log -1
 
 aws configure list
 ECR=987685672616.dkr.ecr.us-east-1.amazonaws.com
