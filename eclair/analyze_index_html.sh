@@ -6,13 +6,17 @@
 #
 # Template to produce index.html for the "full" build.
 
+if [ -n "${TF_CONFIG}" ]; then
+    build_config = "TF-A Config: ${TF_CONFIG}<br />"
+fi
+
 cat <<EOF >index.html
 <html>
 <body>
 <h1>MISRA reports</h1>
 
 <p>
-TF-A Config: ${TF_CONFIG}<br />
+${build_config}
 CI Build: <a href="${BUILD_URL}">${BUILD_URL}</a>
 </p>
 
